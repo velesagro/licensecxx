@@ -15,13 +15,13 @@ if(LCXX_GENERATE_KEYS)
     endif(NOT LCXX_PUBLIC_KEY)
 
     if(NOT LCXX_KEY_HEADER_DIR)
-        set(LCXX_KEY_HEADER_DIR "${PROJECT_BINARY_DIR}/keys/include" )
+        set(LCXX_KEY_HEADER_DIR "${CMAKE_SOURCE_DIR}/keys/include" )
     endif(NOT LCXX_KEY_HEADER_DIR)
 
     find_package(Python REQUIRED)
 
     add_custom_target(generate_headers
-        COMMAND "${Python_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/generate_headers.py" "${LCXX_PRIVATE_KEY}" "${LCXX_PUBLIC_KEY}" ${LCXX_KEY_HEADER_DIR}
+        COMMAND "${Python_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/cpp/licensecxx/scripts/generate_headers.py" "${LCXX_PRIVATE_KEY}" "${LCXX_PUBLIC_KEY}" ${LCXX_KEY_HEADER_DIR}
     )
 
     add_library(lcxx_key_headers INTERFACE)

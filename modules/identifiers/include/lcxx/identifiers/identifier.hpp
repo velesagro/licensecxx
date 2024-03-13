@@ -5,7 +5,7 @@
 
 namespace lcxx::experimental::identifiers {
 
-    using ident_strat_t = std::int32_t;
+    using ident_strat_t = int32_t;
 
     struct identifier {
         std::string   hash;
