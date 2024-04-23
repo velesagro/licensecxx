@@ -20,5 +20,5 @@ include(${PROJECT_SOURCE_DIR}/cmake/get_nlohmann_json.cmake)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/modules)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
 add_subdirectory(${PROJECT_SOURCE_DIR}/samples)

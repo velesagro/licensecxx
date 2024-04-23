@@ -4,11 +4,13 @@ function(pull_version)
 
 execute_process(
     COMMAND git describe --tags
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/cpp/licensecxx"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/cpp/licensecxx/"
     OUTPUT_VARIABLE GIT_DESCRIBE
     RESULTS_VARIABLE GIT_DESCRIBE_ERR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+message(WORKING_DIRECTORY = "${CMAKE_SOURCE_DIR}/cpp/licensecxx")
+message(${GIT_DESCRIBE_ERR})
 # Examples:
 # - v1.0.3-1-g88da7dd
 # - v2.0.0
