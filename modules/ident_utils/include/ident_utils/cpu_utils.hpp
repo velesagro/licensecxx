@@ -6,10 +6,9 @@
 namespace lcxx::experimental::ident_utils::cpu {
 
     struct cpu_info {
-        std::size_t n_cores;
-        std::size_t n_threads;
+        std::string revision;
         std::size_t max_frequency;
-        std::string vendor;
+        std::string serial;
         std::string model_name;
     };
 
@@ -22,4 +21,19 @@ namespace lcxx::experimental::ident_utils::cpu {
 
 }  // namespace lcxx::experimental::ident_utils::cpu
 
+namespace lcxx::experimental::ident_utils::pcb {
+
+    struct pcb_info {
+        std::string gsm_imei;
+        std::string serial;
+    };
+
+    /**
+     * @brief retrieves information about the PCB built into this machine
+     *
+     * @return pcb_info an information object about the PCB
+     */
+    auto get_info() -> pcb_info;
+
+}  // namespace lcxx::experimental::ident_utils::cpu
 #endif  // LCXX__IDENT_UTILS_CPU_UTILS_HPP__

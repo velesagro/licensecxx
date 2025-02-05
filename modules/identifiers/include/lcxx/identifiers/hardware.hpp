@@ -12,12 +12,11 @@ namespace lcxx::experimental::identifiers {
     enum class hw_ident_strat : ident_strat_t {
         all = 1,
         cpu = 1 << 1,
-        // gpu               = 1 << 2,
-        // ethernet          = 1 << 3,
-        cpu_n_cores       = 1 << 10,
-        cpu_n_threads     = 1 << 11,
+        gsm_imei          = 1 << 2,
+        pcb_serial        = 1 << 3,
+        cpu_revision      = 1 << 10,
         cpu_max_frequency = 1 << 12,
-        cpu_vendor        = 1 << 13,
+        cpu_serial        = 1 << 13,
         cpu_model_name    = 1 << 14,
     };
 
