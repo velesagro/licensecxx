@@ -8,7 +8,10 @@
 #include <lcxx/identifiers/common.hpp>
 
 namespace lcxx::experimental::ident_utils::cpu {
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cpu_info, vendor, model_name, n_cores, n_threads, max_frequency );
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cpu_info, revision, max_frequency, serial, model_name);
+}
+namespace lcxx::experimental::ident_utils::pcb {
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( pcb_info, gsm_imei, serial);
 }
 namespace lcxx::experimental::identifiers {
 
@@ -21,6 +24,7 @@ namespace lcxx::experimental::identifiers {
     auto hardware( hw_ident_strat const strategy ) -> identifier
     {
         auto cpu_info = ident_utils::cpu::get_info();
+        auto pcb_info = ident_utils::pcb::get_info();
 
         nlohmann::json info_json;
 
@@ -36,16 +40,23 @@ namespace lcxx::experimental::identifiers {
             info_json["cpu"] = { cpu_info };
         }
         else {
-            if ( strat_active( strategy, hw_ident_strat::cpu_n_cores ) )
-                info_json["n_cores"] = cpu_info.n_cores;
-            if ( strat_active( strategy, hw_ident_strat::cpu_n_threads ) )
-                info_json["n_threads"] = cpu_info.n_threads;
+            if ( strat_active( strategy, hw_ident_strat::cpu_revision ) )
+                info_json["revision"] = cpu_info.revision;
             if ( strat_active( strategy, hw_ident_strat::cpu_max_frequency ) )
                 info_json["max_frequency"] = cpu_info.max_frequency;
-            if ( strat_active( strategy, hw_ident_strat::cpu_vendor ) )
-                info_json["vendor"] = cpu_info.vendor;
+            if ( strat_active( strategy, hw_ident_strat::cpu_serial ) )
+                info_json["serial"] = cpu_info.serial;
             if ( strat_active( strategy, hw_ident_strat::cpu_model_name ) )
                 info_json["model_name"] = cpu_info.model_name;
+        }
+
+        if(strat_active(strategy, hw_ident_strat::gsm_imei))
+        {
+            info_json["gsm_imei"] = pcb_info.gsm_imei;
+        }
+        if(strat_active(strategy, hw_ident_strat::pcb_serial))
+        {
+            info_json["pcb_serial"] = pcb_info.serial;
         }
 
         auto msg = info_json.dump();
@@ -53,8 +64,7 @@ namespace lcxx::experimental::identifiers {
         if ( err != hash::error::ok )
             return { error::hash_error, {}, msg };
         return { error::ok, encode::base64( hash ), msg };
-        // if(strat_active(strategy, hw_ident_strat::gpu) {}
-        // if(strat_active(strategy, hw_ident_strat::network) {}
+
     }
 
     auto verify( hw_ident_strat const strategy, std::string_view const hash ) -> bool

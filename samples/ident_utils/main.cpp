@@ -8,7 +8,10 @@
 using namespace lcxx::experimental::ident_utils;
 
 namespace lcxx::experimental::ident_utils::cpu {
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cpu_info, vendor, model_name, n_cores, n_threads, max_frequency );
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( cpu_info, revision, max_frequency, serial, model_name);
+}
+namespace lcxx::experimental::ident_utils::pcb {
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( pcb_info, gsm_imei, serial);
 }
 namespace lcxx::experimental::ident_utils::os {
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( os_info, os_name, os_architecture, os_pc_name, user_name, user_groups, user_uid,
