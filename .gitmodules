@@ -1,0 +1,3 @@
+[submodule "CryptoAuthLib"]
+	path = CryptoAuthLib
+	url = https://github.com/velesagro/cryptoauthlib.git
