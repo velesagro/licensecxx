@@ -4,4 +4,5 @@ add_executable(license_generator
 target_link_libraries(license_generator
     lcxx::lcxx
     lcxx::identifiers
+    cryptoauth
 )

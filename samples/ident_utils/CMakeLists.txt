@@ -4,4 +4,5 @@ add_executable(ident_utils_samples
 target_link_libraries(ident_utils_samples PRIVATE
     lcxx::ident_utils
     nlohmann_json::nlohmann_json
+    cryptoauth
 )

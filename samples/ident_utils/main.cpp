@@ -25,6 +25,7 @@ auto main() -> int
     };
 
     print( "cpu", cpu::get_info() );
+    print( "pcb", pcb::get_info() );
     print( "os", os::get_info() );
     // print( "disk", disk::get_info() );
 

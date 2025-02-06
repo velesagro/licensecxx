@@ -2,8 +2,10 @@
 
 #include <sys/sysinfo.h>
 #include <thread>
-
+#include "cryptoauthlib.h"
+#include "config.h"
 #include <ident_utils/common.hpp>
+
 
 namespace lcxx::experimental::ident_utils::cpu {
 
@@ -52,20 +54,24 @@ namespace lcxx::experimental::ident_utils::pcb {
     {
         pcb_info ci;
 
-        auto try_stoull = []( std::string const & str ) -> unsigned long long {
-            try {
-                return std::stoull( str );
-            }
-            catch ( std::invalid_argument & e ) {
-                // Should maybe throw again? Or just leave these entries empty
-                // Having them empty does not break systems that do not have permissions to access these files
-                return {};
-            }
-        };
-
         ci.gsm_imei = "1";// read from GSM module
-        ci.serial    = "2"; // read from crypto IC
 
+        ATCAIfaceCfg cfg = cfg_ateccx08a_i2c_default;
+        ATCA_STATUS status = atcab_init(&cfg);
+        uint8_t sn[9];
+        if (status == ATCA_SUCCESS)
+        {
+            status = atcab_read_serial_number(sn);
+            for(int i = 0; i < 9; i++) {
+                // Додаємо кожен байт до serial як двозначне шістнадцяткове число
+                ci.serial += std::to_string(sn[i]);
+            }
+        }
+        else
+        {
+            ci.serial = "";
+        }
+        printf("ci.serial = %s",ci.serial);
         return ci;
     }
 

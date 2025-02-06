@@ -19,13 +19,20 @@ include(${PROJECT_SOURCE_DIR}/cmake/key_targets.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/get_nlohmann_json.cmake)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/modules)
+add_subdirectory(${PROJECT_SOURCE_DIR}/samples)
 
 add_subdirectory(CryptoAuthLib/)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAuthLib/lib/atca_config.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/atca_config.h
 )
-target_link_libraries(Ferti
+add_library(lcxx STATIC)
+target_link_libraries(lcxx
     PRIVATE cryptoauth
     rt pthread)
+
+include_directories(
+    CryptoAuthLib/lib/
+)
+message(NOTICE "CMAKE_CURRENT_SOURCE_DIR =  ${CMAKE_CURRENT_SOURCE_DIR}")
 

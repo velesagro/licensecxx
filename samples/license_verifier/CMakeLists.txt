@@ -3,4 +3,5 @@ add_executable(license_verifier
 )
 target_link_libraries(license_verifier
     lcxx::lcxx
+    cryptoauth
 )
