@@ -55,23 +55,28 @@ namespace lcxx::experimental::ident_utils::pcb {
         pcb_info ci;
 
         ci.gsm_imei = "1";// read from GSM module
-
         ATCAIfaceCfg cfg = cfg_ateccx08a_i2c_default;
         ATCA_STATUS status = atcab_init(&cfg);
         uint8_t sn[9];
         if (status == ATCA_SUCCESS)
         {
             status = atcab_read_serial_number(sn);
-            for(int i = 0; i < 9; i++) {
-                // Додаємо кожен байт до serial як двозначне шістнадцяткове число
-                ci.serial += std::to_string(sn[i]);
+            if (status == ATCA_SUCCESS){
+                for(int i = 0; i < 9; i++) {
+                    // Додаємо кожен байт до serial як двозначне шістнадцяткове число
+                    ci.serial += std::to_string(sn[i]);
+                }
+            }
+            else
+            {
+                ci.serial = "0000000000000000";
             }
         }
         else
         {
-            ci.serial = "";
+            ci.serial = "0000000000000000";
         }
-        printf("ci.serial = %s",ci.serial);
+        //printf("ci.serial = %s",ci.serial);
         return ci;
     }
 
