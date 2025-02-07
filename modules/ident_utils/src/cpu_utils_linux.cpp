@@ -5,7 +5,11 @@
 #include "cryptoauthlib.h"
 #include "config.h"
 #include <ident_utils/common.hpp>
-
+#include <fcntl.h>
+#include <termios.h>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
 
 namespace lcxx::experimental::ident_utils::cpu {
 
@@ -48,13 +52,94 @@ namespace lcxx::experimental::ident_utils::cpu {
 
 }  // namespace lcxx::experimental::ident_utils::cpu
 
+std::string sendATCommand(const std::string& port, const std::string& command) {
+    int serialPort = open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+    if (serialPort < 0) {
+        std::cerr << "Error opening serial port " << port << std::endl;
+        return "";
+    }
+
+    struct termios tty;
+    if (tcgetattr(serialPort, &tty) != 0) {
+        std::cerr << "Error getting terminal attributes" << std::endl;
+        close(serialPort);
+        return "";
+    }
+
+            // Налаштування порту: 115200 8N1 (8 біт, без парності, 1 стоп-біт)
+    cfsetospeed(&tty, B115200);
+    cfsetispeed(&tty, B115200);
+
+    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8; // 8 біт даних
+    tty.c_iflag &= ~IGNBRK; // Вимкнути обробку розриву
+    tty.c_lflag = 0; // Не обробляти введені дані
+    tty.c_oflag = 0; // Вимкнути спеціальні режими виводу
+    tty.c_cc[VMIN]  = 0; // Немає мінімальної кількості байтів
+    tty.c_cc[VTIME] = 0; // Чекати дані в select()
+
+    tcsetattr(serialPort, TCSANOW, &tty);
+
+            // Додаємо `\r\n` до команди та відправляємо
+    std::string fullCommand = command + "\r\n";
+    write(serialPort, fullCommand.c_str(), fullCommand.size());
+
+            // Читаємо відповідь
+    char buffer[256];
+    std::string response="n/a";
+    fd_set set;
+    struct timeval timeout;
+    int bytesRead;
+
+    timeout.tv_sec = 2;  // 2 секунди таймаут
+    timeout.tv_usec = 0;
+
+    while (true) {
+        FD_ZERO(&set);
+        FD_SET(serialPort, &set);
+
+        int res = select(serialPort + 1, &set, nullptr, nullptr, &timeout);
+        if (res > 0) {
+            bytesRead = read(serialPort, buffer, sizeof(buffer) - 1);
+            if (bytesRead > 0) {
+                buffer[bytesRead] = '\0';
+                response += buffer;
+                // Якщо є "OK", припиняємо читання
+                if (response.find("OK") != std::string::npos) {
+                    break;
+                }
+            }
+        } else {
+            // Якщо select() повертає 0 — таймаут
+            std::cerr << "Timeout reached." << std::endl;
+            break;
+        }
+    }
+
+    close(serialPort);
+    return response;
+}
+std::string cleanResponse(const std::string& response) {
+    std::string result = response;
+
+            // Видаляємо всі символи, крім цифр (IMEI містить лише цифри)
+    result.erase(std::remove_if(result.begin(), result.end(),
+                                  [](unsigned char c) { return !std::isdigit(c); }),
+                  result.end());
+
+    return result;
+}
+
 namespace lcxx::experimental::ident_utils::pcb {
 
     auto get_info() -> pcb_info
     {
         pcb_info ci;
 
-        ci.gsm_imei = "1";// read from GSM module
+        std::string response = sendATCommand("/dev/ttyAMA4", "AT+CGSN");
+        std::string imei = cleanResponse(response);
+        std::cout << "IMEI: " << imei << std::endl;
+        ci.gsm_imei = imei;// read from GSM module
+
         ATCAIfaceCfg cfg = cfg_ateccx08a_i2c_default;
         ATCA_STATUS status = atcab_init(&cfg);
         uint8_t sn[9];
